@@ -6,7 +6,6 @@
     "dev": "nodemon api/app.js",
     "start": "node api/app.js",
     "build": "npm install && npm install --prefix client && npm run build --prefix client"
-
   },
   "keywords": [],
   "author": "",
@@ -28,6 +27,7 @@
     "sequelize-cli": "^6.6.2",
     "swagger": "^0.7.5",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "vercel": "^39.2.5"
   }
 }
