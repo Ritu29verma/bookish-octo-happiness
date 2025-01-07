@@ -5,6 +5,7 @@ import AllNotification from "../components/AllNotification";
 import AllPayments from "../components/Allpayments";
 import { useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
+import Feedbacks from "../components/Feedbacks";
 
 const AdminAppointmentsPage = () => {
   const [activeView, setActiveView] = useState("appointments");
@@ -26,8 +27,10 @@ const AdminAppointmentsPage = () => {
 
       case "notifications":
         return <AllNotification/>;
-    case "payments":
+      case "payments":
             return <AllPayments/>;
+      case "feedbacks":
+              return <Feedbacks/>;
 
       default:
         return <p>Select an option from the menu.</p>;
@@ -121,6 +124,15 @@ const AdminAppointmentsPage = () => {
               Payments
             </button>
             <button
+              className={'text-left w-full'}
+              onClick={() => {
+                setActiveView("feedbacks");
+                toggleSidebar();
+              }}
+            >
+              Feedbacks
+            </button>
+            <button
               className="w-full text-left text-white py-2 rounded"
               onClick={handleLogout}
             >
@@ -164,6 +176,14 @@ const AdminAppointmentsPage = () => {
             Payments
           </button>
           <button
+            className={`bg-brown px-4 py-2 rounded ${
+              activeView === "feedbacks" ? "bg-[#a74835]" : ""
+            }`}
+            onClick={() => setActiveView("feedbacks")}
+          >
+            Feedbacks
+          </button>
+          <button
             className="bg-brown text-white px-4 py-2 rounded"
             onClick={handleLogout}
           >
@@ -187,6 +207,8 @@ const AdminAppointmentsPage = () => {
                 return "Notifications";
             case "payments":
                 return "All Payments";
+                case "feedbacks":
+                  return "All Feedbacks";
             default:
                 return "Select an option from the menu.";
             }

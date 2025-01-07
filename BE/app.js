@@ -10,7 +10,8 @@ const setupSwagger = require('./config/swagger');
 const sequelize = require('./config/dbConfig'); 
 const User = require('./models/User');
 const Appointment = require('./models/Appointment');
-const Payment = require('./models/Payment')
+const Payment = require('./models/Payment');
+const contactRoutes = require('./routes/contactRoutes');
 
 User.setAssociations({ Appointment });
 Appointment.setAssociations({ User });
@@ -40,6 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/pay', paymentRoutes);
+app.use('/api', contactRoutes);
 
 // Swagger
 setupSwagger(app);

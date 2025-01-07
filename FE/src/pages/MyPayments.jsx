@@ -46,7 +46,7 @@ const MyPayments = () => {
   return (
     <>
       <Header />
-      <div className="bg-cream min-h-screen py-8 px-4">
+      <div className="bg-cream mt-16 min-h-screen py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-coffee mb-6">My Payments</h1>
 

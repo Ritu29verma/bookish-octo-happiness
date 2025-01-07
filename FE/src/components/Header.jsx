@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Link } from 'react-router-dom';
 import MyAppointments from "../pages/MyAppointments";
 
 const Header = () => {
@@ -71,8 +72,12 @@ const Header = () => {
             <a className="hover:text-brown cursor-pointer"
             onClick={() => navigate("/aboutus")}
             >About Us</a>
-            <a href="#services" className="hover:text-brown">Services</a>
-            <a href="#contact" className="hover:text-brown">Contact Us</a>
+             <Link to="/#services" className="text-md hover:text-brown">
+        Services
+      </Link>
+            <Link to="/#contact" className="text-md hover:text-brown">
+        Contact Us
+      </Link>
           </nav>
 
           {/* User-specific Buttons */}
@@ -90,11 +95,6 @@ const Header = () => {
                   <span className="hidden sm:block text-md font-medium">
                     Welcome, {userInfo.username}!
                   </span>
-                  
-                  {/* Optionally show roles */}
-                  {/* <div className="text-sm text-gray-500">
-                    ({userInfo.groups.length > 0 ? userInfo.groups.join(", ") : "No roles assigned"})
-                  </div> */}
                 </>
               )}
               <div className="flex items-center space-x-2">
@@ -183,7 +183,7 @@ const Header = () => {
             <a
               href="#home"
               className="text-lg hover:text-brown"
-              onClick={toggleSidebar}
+              onClick={() => navigate('/')}
             >
               Home
             </a>
@@ -198,20 +198,13 @@ const Header = () => {
   About Us
 </a>
 
-            <a
-              href="#services"
-              className="text-lg hover:text-brown"
-              onClick={toggleSidebar}
-            >
-              Services
-            </a>
-            <a
-              href="#contact"
-              className="text-lg hover:text-brown"
-              onClick={toggleSidebar}
-            >
-              Contact Us
-            </a>
+<Link to="/#services" className="text-lg hover:text-brown">
+        Services
+      </Link>
+            <Link to="/#contact" className="text-lg hover:text-brown">
+        Contact Us
+      </Link>
+            
             
           </nav>
         </div>

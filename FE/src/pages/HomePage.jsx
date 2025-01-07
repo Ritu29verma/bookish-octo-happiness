@@ -1,5 +1,5 @@
 // homepage.jsx
-import React, { useState }from 'react';
+import React, { useState,useEffect }from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Card from '../components/Card';
@@ -10,10 +10,25 @@ import icon1 from '../assets/icon1.png'
 import ContactUs from '../components/ContactUs';
 import AppointmentModal from './Appointment';
 import { Navigate,useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#contact') {
+      document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (location.hash === '#services') {
+      document.getElementById('services').scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [location]);
+
   const handleBookNowClick = () => {
     setShowModal(true);
   };

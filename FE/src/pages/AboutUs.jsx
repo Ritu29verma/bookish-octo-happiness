@@ -1,39 +1,17 @@
 import React from "react";
-
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 const AboutUs = () => {
   return (
     <div className="bg-cream text-brown">
+       <Header />
       {/* Header Section */}
       <section className="text-center py-12 px-4">
-        <h1 className="text-4xl font-bold mb-4">About us</h1>
+        <h1 className="text-4xl font-bold mb-4 mt-16">About us</h1>
         <p className="text-lg max-w-xl mx-auto">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit
           tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.
         </p>
-      </section>
-
-      {/* Images Section */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-16 mb-12">
-        <img
-          src="https://via.placeholder.com/300"
-          alt="Image 1"
-          className="rounded-lg shadow-lg"
-        />
-        <img
-          src="https://via.placeholder.com/300"
-          alt="Image 2"
-          className="rounded-lg shadow-lg"
-        />
-        <img
-          src="https://via.placeholder.com/300"
-          alt="Image 3"
-          className="rounded-lg shadow-lg"
-        />
-        <img
-          src="https://via.placeholder.com/300"
-          alt="Image 4"
-          className="rounded-lg shadow-lg"
-        />
       </section>
 
       {/* Content Section */}
@@ -41,7 +19,7 @@ const AboutUs = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div>
             <h2 className="text-2xl font-semibold mb-4">
-              We make sure your idea & creation delivered properly
+            Fusce euismod ipsum eget nunc
             </h2>
             <p className="text-base mb-4">
               Pellentesque mollis urna vel semper egestas. Duis a erat dictum
@@ -77,7 +55,7 @@ const AboutUs = () => {
       {/* Services Section */}
       <section className="text-center py-12 bg-white">
         <h2 className="text-2xl font-semibold mb-6">
-          We help businesses to grow faster and bigger
+        Fusce euismod ipsum eget nunc
         </h2>
         <p className="text-base max-w-2xl mx-auto mb-12">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -107,6 +85,7 @@ const AboutUs = () => {
           </div>
         </div>
       </section>
+      <Footer/>
     </div>
   );
 };
