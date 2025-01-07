@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Header from '../components/Header';
-import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+
 const MyPayments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +11,6 @@ const MyPayments = () => {
       const token = sessionStorage.getItem('accessToken');
 
       if (!token) {
-        toast.error('Access token is missing. Please log in again.');
         setLoading(false);
         return;
       }
@@ -22,14 +20,13 @@ const MyPayments = () => {
           `${import.meta.env.VITE_BASE_URL}/api/pay/my-payments`,
           {
             headers: {
-              Authorization: `${token}`,
+              Authorization: `${token}`, // Ensure proper Authorization header
             },
           }
         );
         setPayments(response.data.payments);
       } catch (err) {
         console.error('Error fetching payments:', err);
-        toast.error('Unable to fetch payments. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -46,7 +43,6 @@ const MyPayments = () => {
     );
   }
 
-
   return (
     <>
       <Header />
@@ -56,22 +52,26 @@ const MyPayments = () => {
 
           <div className="bg-white shadow-md rounded-lg p-6">
             <h2 className="text-2xl font-semibold text-brown mb-4">Payment History</h2>
-            <ul className="space-y-4">
-              {payments.map((payment) => (
-                <li key={payment.id} className="bg-cream p-4 rounded-lg shadow-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-coffee">
-                      Payment for Appointment ID: {payment.appointment_id} on{' '}
-                      {new Date(payment.Appointment?.appointment_date).toLocaleString('en-US')}
-                    </span>
-                    <span className="text-brown">${payment.amount}</span>
-                  </div>
-                  <div className="text-gray-500 text-sm">
-                    Status: {payment.payment_status} | Method: {payment.payment_method || 'N/A'}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {payments.length === 0 ? (
+              <p className="text-center text-gray-500">No payments found</p>
+            ) : (
+              <ul className="space-y-4">
+                {payments.map((payment) => (
+                  <li key={payment.id} className="bg-cream p-4 rounded-lg shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-coffee">
+                        Payment for Appointment ID: {payment.appointment_id} on{' '}
+                        {new Date(payment.Appointment?.appointment_date).toLocaleString('en-US')}
+                      </span>
+                      <span className="text-brown">${payment.amount}</span>
+                    </div>
+                    <div className="text-gray-500 text-sm">
+                      Status: {payment.payment_status} | Method: {payment.payment_method || 'N/A'}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
