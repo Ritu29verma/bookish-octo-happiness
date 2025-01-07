@@ -5,57 +5,63 @@ const router = express.Router();
 
 /**
  * @swagger
- * /signup:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               password:
- *                 type: string
- *               email:
- *                 type: string
- *               role:
- *                 type: string
- *                 enum: [admin, customer]
- *     responses:
- *       200:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 userSub:
- *                   type: string
- *       400:
- *         description: Signup failed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                 message:
- *                   type: string
+ * tags:
+ *   name: Authentication
+ *   description: API endpoints for user authentication and Google OAuth
  */
 
 /**
  * @swagger
- * /confirm:
+ * /api/auth/getUserInfo:
+ *   get:
+ *     summary: Retrieves user information for the authenticated user.
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user information.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userId:
+ *                   type: integer
+ *                   description: Unique identifier for the user.
+ *                 fullName:
+ *                   type: string
+ *                   description: Full name of the user.
+ *                 email:
+ *                   type: string
+ *                   description: Email of the user.
+ *       401:
+ *         description: Unauthorized - Missing or invalid token.
+ *       500:
+ *         description: Internal server error while fetching user info.
+ */
+
+/**
+ * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Google OAuth authentication route.
+ *     tags: [Authentication]
+ *     description: Redirects to Google OAuth consent screen for user authentication.
+ *     responses:
+ *       302:
+ *         description: Redirect to Google OAuth consent screen.
+ *       500:
+ *         description: Internal server error during Google authentication process.
+ */
+
+/**
+ * @swagger
+ * /api/auth/callback:
  *   post:
- *     summary: Confirm user signup
- *     tags: [Auth]
+ *     summary: Handles the callback from Google OAuth.
+ *     tags: [Authentication]
+ *     description: Receives the OAuth callback from Google and processes the user login or signup.
  *     requestBody:
  *       required: true
  *       content:
@@ -63,41 +69,136 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               username:
+ *               code:
  *                 type: string
- *               confirmationCode:
- *                 type: string
+ *                 description: The authorization code received from Google OAuth.
  *     responses:
  *       200:
- *         description: User confirmed successfully
+ *         description: User logged in or signed up successfully via Google.
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 accessToken:
  *                   type: string
+ *                   description: JWT token for the logged-in user.
  *       400:
- *         description: Confirmation failed
+ *         description: Bad Request - Invalid or missing authorization code.
+ *       500:
+ *         description: Internal server error during OAuth callback handling.
+ */
+
+/**
+ * @swagger
+ * /api/auth/signup:
+ *   post:
+ *     summary: Registers a new user.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *                 description: Full name of the user.
+ *               email:
+ *                 type: string
+ *                 description: Email of the user.
+ *               password:
+ *                 type: string
+ *                 description: Password chosen by the user.
+ *     responses:
+ *       201:
+ *         description: User created successfully.
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 error:
- *                   type: string
  *                 message:
  *                   type: string
- *       404:
- *         description: User not found
+ *                   example: "User registered successfully."
+ *       400:
+ *         description: Bad Request - Missing or invalid input data.
+ *       500:
+ *         description: Internal server error during user registration.
+ */
+
+/**
+ * @swagger
+ * /api/auth/confirm:
+ *   post:
+ *     summary: Confirms user email address for registration.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Token sent to user's email for email confirmation.
+ *     responses:
+ *       200:
+ *         description: Email successfully confirmed.
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 message:
  *                   type: string
+ *                   example: "Email confirmed successfully."
+ *       400:
+ *         description: Bad Request - Invalid or missing confirmation token.
+ *       500:
+ *         description: Internal server error during email confirmation.
  */
+
+/**
+ * @swagger
+ * /api/auth/signin:
+ *   post:
+ *     summary: Authenticates an existing user and generates a JWT token.
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Email of the user.
+ *               password:
+ *                 type: string
+ *                 description: Password for the user.
+ *     responses:
+ *       200:
+ *         description: User signed in successfully and JWT token generated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                   description: JWT token for the authenticated user.
+ *       400:
+ *         description: Bad Request - Invalid email or password.
+ *       401:
+ *         description: Unauthorized - Invalid credentials.
+ *       500:
+ *         description: Internal server error during user authentication.
+ */
+
 router.get('/getUserInfo', authenticate, userInfo );
 router.get('/google',google);
 router.post('/callback',callback);
