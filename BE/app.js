@@ -26,8 +26,13 @@ Payment.setAssociations({ User, Appointment });
   })();
 
 const app = express();
-app.use(cors({ origin: '*' })); 
-// app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' })); 
+// app.use(cors({ origin: '*' })); 
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true // Enable credentials for secure requests
+}));
+
 app.use(bodyParser.json());
 
 // Routes
