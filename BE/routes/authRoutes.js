@@ -1,5 +1,5 @@
 const express = require('express');
-const { signup, confirm, signin , userInfo, google, callback } = require('../controllers/authController');
+const { signup, confirm, signin , userInfo, google, callback,resendVerificationCode } = require('../controllers/authController');
 const { authenticate } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -163,6 +163,53 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /api/auth/resend-code:
+ *   post:
+ *     summary: Resend the email verification code to the user.
+ *     tags: [Authentication]
+ *     description: Sends a new verification code to the user’s email to confirm their account.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The username of the user requesting the verification code.
+ *                 example: "johndoe"
+ *     responses:
+ *       200:
+ *         description: Verification code resent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Verification code resent successfully"
+ *       400:
+ *         description: Resend failed due to invalid input or Cognito error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Resend failed"
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid username or Cognito error message"
+ *       500:
+ *         description: Internal server error.
+ */
+
+
+/**
+ * @swagger
  * /api/auth/signin:
  *   post:
  *     summary: Authenticates an existing user and generates a JWT token.
@@ -200,6 +247,7 @@ const router = express.Router();
  */
 
 router.get('/getUserInfo', authenticate, userInfo );
+router.post('/resend-code',resendVerificationCode);
 router.get('/google',google);
 router.post('/callback',callback);
 router.post('/signup', signup);

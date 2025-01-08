@@ -12,6 +12,10 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET,
   });
 
+
+
+
+  
 exports.initPayment = async (req, res) => {
     const { appointment_id } = req.body;
     const { userId } = req.user
@@ -54,6 +58,9 @@ exports.initPayment = async (req, res) => {
 };
 
 
+
+
+
 exports.updatePaymentStatus = async (req, res) => {
     const { payment_id, appointment_id, razorpay_payment_id } = req.body;
   
@@ -90,6 +97,8 @@ exports.updatePaymentStatus = async (req, res) => {
   };
   
 
+
+
 exports.failPaymentStatus = async(req,res) =>{
     const { payment_id } = req.body; // Expecting payment_id in the request body
 
@@ -116,6 +125,8 @@ exports.failPaymentStatus = async(req,res) =>{
     return res.status(500).json({ message: 'An error occurred while updating payment status' });
   }
 };
+
+
 
 
 
@@ -152,7 +163,9 @@ exports.myPayments = async (req, res) => {
 
 
 
-  exports.allPayments = async (req, res) => {
+
+
+exports.allPayments = async (req, res) => {
     try {
       const payments = await Payment.findAll({
         include: [
@@ -179,8 +192,12 @@ exports.myPayments = async (req, res) => {
       return res.status(500).json({ message: 'Internal server error' });
     }
   };
+ 
   
-  exports.PaypalInit = async (req, res) => {
+
+
+
+exports.PaypalInit = async (req, res) => {
     const { appointment_id } = req.body;
     const { userId } = req.user;
     if (!appointment_id || !userId) {
@@ -243,7 +260,9 @@ exports.myPayments = async (req, res) => {
 
 
 
-  exports.PaypalSuccess = async (req, res) => {
+
+
+exports.PaypalSuccess = async (req, res) => {
     const { token } = req.query;
   
     try {
@@ -286,7 +305,11 @@ exports.myPayments = async (req, res) => {
     }
   };
 
-  exports.PaypalCancel = async (req, res) => {
+
+
+
+
+exports.PaypalCancel = async (req, res) => {
     const { paymentId } = req.query;
   
     try {

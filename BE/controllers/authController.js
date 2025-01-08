@@ -195,7 +195,7 @@ exports.signin = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Generate the JWT token with userId included
+
     const token = jwt.sign(
       { 
         userId: user.id, 
@@ -228,7 +228,7 @@ exports.signin = async (req, res) => {
       // Fetch user groups
       const params = {
         Username: username,
-        UserPoolId: process.env.COGNITO_USER_POOL_ID, // Replace with your User Pool ID
+        UserPoolId: process.env.COGNITO_USER_POOL_ID, 
       };
   
       const groupData = await cognitoIdentityServiceProvider
@@ -248,5 +248,20 @@ exports.signin = async (req, res) => {
   
   
 
-
+  exports.resendVerificationCode = async (req, res) => {
+    const { username } = req.body;
+  
+    const params = {
+      ClientId: CLIENT_ID,
+      Username: username,
+    };
+  
+    try {
+      // Resend the verification code using Cognito
+      await cognito.resendConfirmationCode(params).promise();
+      res.json({ message: "Verification code resent successfully" });
+    } catch (err) {
+      res.status(400).json({ error: "Resend failed", message: err.message });
+    }
+  };
 

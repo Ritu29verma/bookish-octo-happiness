@@ -1,5 +1,6 @@
 const ContactMessage = require('../models/ContactMessage');
 
+
 exports.saveMessage = async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -16,6 +17,8 @@ exports.saveMessage = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
 
 exports.getAllMessages = async function (req, res) {
   try {

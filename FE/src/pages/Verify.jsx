@@ -60,7 +60,24 @@ const Verify = () => {
           </button>
         </div>
         <p className="text-sm text-center mt-4">
-          Didn't receive a code? <a href="" className="text-coffee font-semibold">Resend Code</a>
+          Didn't receive a code?{" "}
+          <button
+            onClick={async () => {
+              try {
+                setLoading(true);
+                await axios.post(`${import.meta.env.VITE_BASE_URL}/api/auth/resend-code`, { username });
+                toast.success("Verification code resent successfully!");
+              } catch (err) {
+                toast.error(err.response?.data?.message || "Failed to resend code");
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            className="text-coffee font-semibold hover:underline"
+          >
+            Resend Code
+          </button>
         </p>
       </div>
     </div>
