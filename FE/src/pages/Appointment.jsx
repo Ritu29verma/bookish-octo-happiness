@@ -2,40 +2,35 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import TimePicker from '../components/TimePicker';
 const AppointmentModal = ({ show, onClose }) => {
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTime, setAppointmentTime] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetTime, setResetTime] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    console.log('Selected Appointment Time:', appointmentTime);
     if (!appointmentDate || !appointmentTime) {
       toast.error('Please select both date and time!');
+      resetFields();
       return;
     }
+    const [hour, minute] = appointmentTime.split(':').map((t) => parseInt(t, 10));
   
-    const appointmentDateTime = `${appointmentDate}T${appointmentTime}`;
+    // Create a new Date object with the selected date and time
+    const appointmentDateTime = new Date(appointmentDate);
+    appointmentDateTime.setHours(hour, minute, 0, 0); // Set time for the selected appointment
+  
     const currentDateTime = new Date();
-    const selectedDateTime = new Date(appointmentDateTime);
   
-    const currentHours = currentDateTime.getHours();
-    const currentMinutes = currentDateTime.getMinutes();
-    const selectedHours = selectedDateTime.getHours();
-    const selectedMinutes = selectedDateTime.getMinutes();
+    console.log('Current Time:', currentDateTime);
+    console.log('Selected Appointment Time:', appointmentDateTime);
   
-    console.log('Current Time:', currentHours, currentMinutes);
-    console.log('Selected Time:', selectedHours, selectedMinutes);
-  
-    // Check if selected date is today and if selected time is in the past
-    if (
-      selectedDateTime <= currentDateTime || 
-      (appointmentDate === currentDateTime.toISOString().split('T')[0] &&
-        (selectedHours < currentHours || 
-        (selectedHours === currentHours && selectedMinutes < currentMinutes)))
-    ) {
-      toast.error('You cannot select a past time on today\'s date.');
+    if (appointmentDateTime <= currentDateTime) {
+      toast.error("You cannot select a past time on today's date.");
+      resetFields();
       return;
     }
   
@@ -43,7 +38,7 @@ const AppointmentModal = ({ show, onClose }) => {
       setLoading(true);
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/appointments/book`,
-        { appointment_date: appointmentDateTime },
+        { appointment_date: appointmentDateTime.toISOString() },
         {
           headers: {
             Authorization: `${sessionStorage.getItem('accessToken')}`,
@@ -52,38 +47,25 @@ const AppointmentModal = ({ show, onClose }) => {
         }
       );
       toast.success(response.data.message || 'Appointment booked successfully!');
+      resetFields();
       setAppointmentDate('');
       setAppointmentTime('');
-      onClose(); // Close the modal after a successful booking
+      onClose(); 
     } catch (err) {
       toast.error(err.response?.data?.message || 'An error occurred while booking.');
+      resetFields();
     } finally {
       setLoading(false);
     }
   };
   
-  const validateTime = () => {
-    const currentDate = new Date();
-    const currentHours = currentDate.getHours();
-    const currentMinutes = currentDate.getMinutes();
-    const selectedDate = new Date(appointmentDate);
-  
-    if (appointmentDate === currentDate.toISOString().split('T')[0] && appointmentTime) {
-      const [selectedHours, selectedMinutes] = appointmentTime.split(':').map(Number);
-  
-      console.log('Current Time:', currentHours, currentMinutes);
-      console.log('Selected Time:', selectedHours, selectedMinutes);
-  
-      if (
-        selectedHours < currentHours ||
-        (selectedHours === currentHours && selectedMinutes < currentMinutes)
-      ) {
-        toast.error("You cannot select a past time on today's date.");
-        setAppointmentTime('');
-      }
-    }
-  };
-  
+  // Function to reset fields
+  const resetFields = () => {
+    setAppointmentDate('');
+    setAppointmentTime('');
+    setResetTime(true); 
+      setTimeout(() => setResetTime(false), 0); 
+  };  
 
   if (!show) return null;
 
@@ -96,7 +78,10 @@ const AppointmentModal = ({ show, onClose }) => {
           </h2>
           <button
             className="text-coffee hover:text-brown"
-            onClick={onClose}
+            onClick={() => {
+              onClose(); // Close the modal
+              resetFields(); // Reset fields
+            }}
           >
             &times;
           </button>
@@ -116,6 +101,7 @@ const AppointmentModal = ({ show, onClose }) => {
               value={appointmentDate}
               onChange={(e) => setAppointmentDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
+              
             />
           </div>
           <div className="mb-4">
@@ -125,7 +111,7 @@ const AppointmentModal = ({ show, onClose }) => {
             >
               Time
             </label>
-            <input
+            {/* <select
               type="time"
               id="time"
               className="mt-1 w-full p-2 border border-coffee rounded focus:outline-none focus:ring focus:ring-brown"
@@ -134,7 +120,15 @@ const AppointmentModal = ({ show, onClose }) => {
                 setAppointmentTime(e.target.value);
                 // validateTime();
               }}
-            />
+            >
+               <option value="" disabled>Select Time</option>
+          {generateTimeOptions().map((time, index) => (
+            <option key={index} value={time}>
+              {time}
+            </option>
+          ))}
+        </select> */}
+        <TimePicker setAppointmentTime={setAppointmentTime} resetTime={resetTime} />
           </div>
           <div className="flex justify-end">
             <button

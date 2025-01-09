@@ -1,5 +1,5 @@
 const express = require('express');
-const { initPayment,updatePaymentStatus, failPaymentStatus ,myPayments, allPayments,PaypalInit,PaypalSuccess,PaypalCancel} = require('../controllers/paymentController');
+const { initPayment,updatePaymentStatus, failPaymentStatus ,myPayments, allPayments,PaypalInit,PaypalSuccess,PaypalCancel,initStripe,stripeSuccess,stripeCancel} = require('../controllers/paymentController');
 const { authenticate } = require('../middleware/authMiddleware');
 const router = express.Router();
 /**
@@ -202,6 +202,9 @@ router.get('/get-all-payments',allPayments);
 router.patch('/update-payment-status',updatePaymentStatus);
 router.patch('/set-payment-failed',failPaymentStatus);
 router.post('/init-paypal',authenticate, PaypalInit);
+router.post('/init-stripe',authenticate, initStripe);
+router.get('/stripe-success',stripeSuccess);
+router.get('/stripe-fail', stripeCancel);
 router.get('/paypal-success',PaypalSuccess);
-router.get('/paypal-fail',PaypalCancel)
+router.get('/paypal-fail',PaypalCancel);
 module.exports = router;

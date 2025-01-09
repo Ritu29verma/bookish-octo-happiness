@@ -6,56 +6,71 @@ const Appointment = require('../models/Appointment')
 const Payment = require('../models/Payment')
 const client = require('../config/paypal')
 const paypal = require('@paypal/checkout-server-sdk');
+const Stripe = require('stripe');
 
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
   });
 
 
-
-
-  
 exports.initPayment = async (req, res) => {
     const { appointment_id } = req.body;
-    const { userId } = req.user
-  if (!userId || !appointment_id) {
-    return res.status(400).json({ error: 'User ID and Appointment ID are required.' });
-  }
+    const { userId } = req.user;
 
-  try {
-    // Validate appointment
-    const appointment = await Appointment.findByPk(appointment_id);
-    if (!appointment || appointment.user_id !== userId) {
-      return res.status(404).json({ error: 'Invalid appointment.' });
+    if (!userId || !appointment_id) {
+        return res.status(400).json({ error: 'User ID and Appointment ID are required.' });
     }
 
-    // Create Razorpay order
-    const amount = 500; // Default amount
-    const razorpayOrder = await createOrder(amount);
+    try {
+        // Validate appointment
+        const appointment = await Appointment.findByPk(appointment_id);
+        if (!appointment || appointment.user_id !== userId) {
+            return res.status(404).json({ error: 'Invalid appointment.' });
+        }
 
-    // Save payment record
-    const payment = await Payment.create({
-      user_id: userId,
-      appointment_id,
-      amount,
-      payment_status: 'pending',
-      transaction_id: razorpayOrder.id, // Razorpay order ID
-    });
+        // Default payment amount
+        const amount = 50; // Default amount
 
-    // Send response
-    res.status(201).json({
-      message: 'Payment initiated successfully.',
-      orderId: razorpayOrder.id,
-      paymentId: payment.id,
-      amount,
-      currency: 'INR',
-    });
-  } catch (error) {
-    console.error('Error initiating payment:', error);
-    res.status(500).json({ error: 'Failed to initiate payment.' });
-  }
+        // Check if a payment already exists for the appointment
+        let payment = await Payment.findOne({ where: { appointment_id } });
+        const razorpayOrder = await createOrder(amount);
+        if (payment) {
+            // Update existing payment record
+            payment.amount = amount;
+            payment.payment_status = 'pending';
+            payment.transaction_id =razorpayOrder.id;
+            payment.updatedAt = new Date();
+            await payment.save();
+        } else {
+            // Create Razorpay order
+
+            // Create a new payment record
+            payment = await Payment.create({
+                user_id: userId,
+                appointment_id,
+                amount,
+                payment_status: 'pending',
+                transaction_id: razorpayOrder.id, // Razorpay order ID
+            });
+        }
+
+        // Send response
+        res.status(201).json({
+            message: 'Payment initiated successfully.',
+            orderId: payment.transaction_id,
+            paymentId: payment.id,
+            amount,
+            currency: 'GBP',
+        });
+    } catch (error) {
+        console.error('Error initiating payment:', error);
+        res.status(500).json({ error: 'Failed to initiate payment.' });
+    }
 };
+
 
 
 
@@ -147,7 +162,7 @@ exports.myPayments = async (req, res) => {
           attributes: ['id', 'appointment_date'], // Include only required fields
         },
       ],
-      order: [['createdAt', 'DESC']], // Order payments by createdAt in descending order (most recent first)
+      order: [['updatedAt', 'DESC']],  // Order payments by createdAt in descending order (most recent first)
     });
 
     if (!payments || payments.length === 0) {
@@ -166,62 +181,78 @@ exports.myPayments = async (req, res) => {
 
 
 exports.allPayments = async (req, res) => {
-    try {
-      const payments = await Payment.findAll({
-        include: [
-          {
-            model: User,
-            as: 'User',
-            attributes: ['id', 'username', 'email'],
-          },
-          {
-            model: Appointment,  // Add the Appointment model to include the appointment details
-            as: 'Appointment',
-            attributes: ['id', 'appointment_date'],  // Select the fields you need
-          },
-        ],
-      });
-  
-      if (!payments || payments.length === 0) {
-        return res.status(404).json({ message: 'No payments found' });
-      }
-  
-      return res.status(200).json({ payments });
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      return res.status(500).json({ message: 'Internal server error' });
+  try {
+    const payments = await Payment.findAll({
+      include: [
+        {
+          model: User,
+          as: 'User',
+          attributes: ['id', 'username', 'email'],
+        },
+        {
+          model: Appointment,
+          as: 'Appointment',
+          attributes: ['id', 'appointment_date'],
+        },
+      ],
+      order: [['updatedAt', 'DESC']], // Order by updatedAt descending
+    });
+
+    if (!payments || payments.length === 0) {
+      return res.status(404).json({ message: 'No payments found' });
     }
-  };
+
+    return res.status(200).json({ payments });
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
  
   
 
 
 
-exports.PaypalInit = async (req, res) => {
+  exports.PaypalInit = async (req, res) => {
     const { appointment_id } = req.body;
     const { userId } = req.user;
+  
     if (!appointment_id || !userId) {
       return res.status(404).json({ error: 'Appointment id or user id not found' });
     }
-    console.log("userID",userId);
+  
+    console.log("userID", userId);
     try {
       const appointment = await Appointment.findByPk(appointment_id);
   
       if (!appointment || appointment.user_id !== userId) {
-          return res.status(404).json({ error: 'Invalid appointment.' });
-        }
-  
-      // Create a new payment record
-      const payment = await Payment.create({
-        user_id: userId,
-        appointment_id,
-        amount: 500.0,
-        payment_status: 'pending', // Initial status
-      });
-      if (!payment) {
-        return res.status(404).json({ error: 'payment cannot be created.' });
+        return res.status(404).json({ error: 'Invalid appointment.' });
       }
-
+  
+      // Check if a payment already exists for this appointment
+      let payment = await Payment.findOne({
+        where: { appointment_id },
+      });
+  
+      if (payment) {
+        // Update the existing payment entry's updatedAt field
+        payment.payment_status = 'pending'; // Reset to pending
+        await payment.save(); // Save updates (automatically updates updatedAt)
+      } else {
+        // Create a new payment record
+        payment = await Payment.create({
+          user_id: userId,
+          appointment_id,
+          amount: 50.0,
+          payment_status: 'pending',
+        });
+  
+        if (!payment) {
+          return res.status(404).json({ error: 'Payment cannot be created.' });
+        }
+      }
+  
       // Create a PayPal order
       const request = new paypal.orders.OrdersCreateRequest();
       request.prefer('return=representation');
@@ -231,8 +262,8 @@ exports.PaypalInit = async (req, res) => {
           {
             reference_id: payment.id.toString(),
             amount: {
-              currency_code: 'USD',
-              value: '500.00',
+              currency_code: 'GBP',
+              value: '50.00',
             },
           },
         ],
@@ -257,6 +288,7 @@ exports.PaypalInit = async (req, res) => {
       res.status(500).json({ error: 'Failed to initiate payment' });
     }
   };
+  
 
 
 
@@ -318,7 +350,7 @@ exports.PaypalCancel = async (req, res) => {
       if (!payment) {
         return res.status(404).json({ error: 'Payment record not found' });
       }
-  
+      console.log("called cancel")
       payment.payment_status = 'failed';
       await payment.save();
   
@@ -329,4 +361,116 @@ exports.PaypalCancel = async (req, res) => {
     }
   };
   
+  // Initialize Stripe Payment
+exports.initStripe = async (req, res) => {
+    const { appointment_id } = req.body;
+    const { userId } = req.user;
   
+    if (!appointment_id || !userId) {
+      return res.status(400).json({ error: 'Appointment ID and User ID are required.' });
+    }
+  
+    try {
+      const appointment = await Appointment.findByPk(appointment_id);
+  
+      if (!appointment || appointment.user_id !== userId) {
+        return res.status(404).json({ error: 'Invalid appointment.' });
+      }
+  
+      // Check if a payment record already exists for this appointment
+      let payment = await Payment.findOne({ where: { appointment_id } });
+  
+      if (!payment) {
+        // Create a new payment record
+        payment = await Payment.create({
+          user_id: userId,
+          appointment_id,
+          amount: 50.0,
+          payment_status: 'pending',
+        });
+      }
+  
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card', 'klarna'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'gbp',
+              product_data: {
+                name: `Appointment #${appointment_id}`,
+              },
+              unit_amount: 5000, // Amount in pence (500 GBP)
+            },
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${process.env.REDIRECT_URI}/stripe/success?paymentId=${payment.id}`,
+        cancel_url: `${process.env.REDIRECT_URI}/stripe/cancel?paymentId=${payment.id}`,
+      });
+  
+      // Save the session ID (transaction ID) to the payment record
+      payment.transaction_id = session.id;
+      await payment.save();
+  
+      res.json({ url: session.url });
+    } catch (error) {
+      console.error('Error initiating Stripe payment:', error);
+      res.status(500).json({ error: 'Failed to initiate payment.' });
+    }
+  };
+  
+
+// Stripe Payment Success
+exports.stripeSuccess = async (req, res) => {
+  const { paymentId } = req.query;
+
+  try {
+    const payment = await Payment.findByPk(paymentId);
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment record not found.' });
+    }
+
+    // Retrieve session details from Stripe using the transaction_id
+    const session = await stripe.checkout.sessions.retrieve(payment.transaction_id);
+
+    // Update payment record with payment status and method
+    payment.payment_status = 'completed';
+    payment.payment_method = session.payment_method_types?.[0] || 'Unknown';
+    await payment.save();
+
+    // Update the associated appointment status
+    const appointment = await Appointment.findByPk(payment.appointment_id);
+    if (appointment) {
+      appointment.status = 'completed';
+      await appointment.save();
+    }
+
+    res.json({ success: true, message: 'Payment successful' });
+  } catch (error) {
+    console.error('Error handling Stripe success:', error);
+    res.status(500).json({ error: 'Failed to update payment status.' });
+  }
+};
+
+// Stripe Payment Cancellation
+exports.stripeCancel = async (req, res) => {
+  const { paymentId } = req.query;
+
+  try {
+    const payment = await Payment.findByPk(paymentId);
+
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment record not found.' });
+    }
+
+    payment.payment_status = 'failed';
+    await payment.save();
+
+    res.json({ success: false, message: 'Payment cancelled or failed.' });
+  } catch (error) {
+    console.error('Error handling Stripe cancellation:', error);
+    res.status(500).json({ error: 'Failed to update payment status.' });
+  }
+};

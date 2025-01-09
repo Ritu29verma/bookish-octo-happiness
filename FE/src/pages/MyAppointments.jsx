@@ -37,6 +37,32 @@ const MyAppointments = () => {
     }
   };
 
+  const initiateStripePayment = async (appointmentId) => {
+    try {
+      const token = sessionStorage.getItem('accessToken');
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/pay/init-stripe`,
+        { appointment_id: appointmentId },
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
+  
+      const { url } = response.data;
+  
+      if (url) {
+        // Redirect the user to the Stripe Checkout page
+        window.location.href = url;
+      } else {
+        toast.error('Failed to get Stripe checkout URL.');
+      }
+    } catch (error) {
+      console.error('Error initiating Stripe payment:', error);
+      toast.error('Failed to initiate Stripe payment. Please try again.');
+    }
+  };
+  
+
   const initiateRazorpayPayment = async (appointmentId) => {
     try {
       const token = sessionStorage.getItem('accessToken');
@@ -53,7 +79,7 @@ const MyAppointments = () => {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: amount * 100,
-        currency: 'INR',
+        currency: 'GBP',
         order_id: orderId,
         handler: async function (response) {
           try {
@@ -151,8 +177,11 @@ const MyAppointments = () => {
       initiateRazorpayPayment(selectedAppointment);
     } else if (gateway === 'paypal') {
       initiatePayPalPayment(selectedAppointment);
+    } else if (gateway === 'stripe') {
+      initiateStripePayment(selectedAppointment);
     }
   };
+  
 
   useEffect(() => {
     fetchAppointments();
@@ -202,7 +231,7 @@ const MyAppointments = () => {
                   >
                     <div>
                       <span className="text-coffee block">
-                        Appointment on{' '}
+                        Appointment ID: {appointment.id}  on{' '}
                         {new Date(appointment.appointment_date).toLocaleString('en-US', {
                           dateStyle: 'medium',
                           timeStyle: 'short',
@@ -257,10 +286,17 @@ const MyAppointments = () => {
               >
                 PayPal
               </button>
+              <button
+                className="bg-purple-500 text-white px-4 py-2 rounded-lg"
+                onClick={() => handleGatewaySelection('stripe')}
+              >
+                Stripe
+              </button>
             </div>
           </div>
         </div>
       )}
+
     </>
   );
 };

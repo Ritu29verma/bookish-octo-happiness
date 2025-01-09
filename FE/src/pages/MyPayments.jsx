@@ -63,7 +63,7 @@ const MyPayments = () => {
                         Payment for Appointment ID: {payment.appointment_id} on{' '}
                         {new Date(payment.Appointment?.appointment_date).toLocaleString('en-US')}
                       </span>
-                      <span className="text-brown">${payment.amount}</span>
+                      <span className="text-brown">£{payment.amount}</span>
                     </div>
                     <div className="text-gray-500 text-sm">
                       Status: {payment.payment_status} | Method: {payment.payment_method || 'N/A'}

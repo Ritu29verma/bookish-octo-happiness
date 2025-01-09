@@ -11,7 +11,8 @@ import ContactUs from '../components/ContactUs';
 import AppointmentModal from './Appointment';
 import { Navigate,useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 const HomePage = () => {
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
@@ -30,7 +31,12 @@ const HomePage = () => {
   }, [location]);
 
   const handleBookNowClick = () => {
-    setShowModal(true);
+    const token = sessionStorage.getItem('accessToken');
+    if (token){setShowModal(true);}
+    else{
+      toast.info('You need to SignIn to Book appointments.')
+    }
+    
   };
 
   const handleCloseModal = () => {

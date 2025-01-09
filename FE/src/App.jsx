@@ -11,6 +11,8 @@ import AboutUs from "./pages/AboutUs";
 import MyAppointments from "./pages/MyAppointments";
 import MyPayments from "./pages/MyPayments";
 import PaymentSuccess from "./pages/paypalSuccess";
+import StripePaymentSuccess from "./pages/stripeSuccess";
+import StripePaymentCancelled from "./pages/stripeCancel";
 import PaymentCancelled from "./pages/paypalCancel";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -30,6 +32,10 @@ const App = () => (
       <Route path="/admin" element={<PrivateRoute > <AdminAppointmentsPage/> </PrivateRoute> }/>
       <Route path="/paypal/success" element={<PaymentSuccess/>}/>
       <Route path="/paypal/cancel" element={<PaymentCancelled/>}/>
+      <Route path="/stripe/success" element={<StripePaymentSuccess/>}/>
+      <Route path="/stripe/cancel" element={<StripePaymentCancelled/>}/>
+
+
 
     </Routes>
   </Router>

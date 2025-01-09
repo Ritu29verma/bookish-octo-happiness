@@ -1,15 +1,19 @@
-// src/pages/PaymentCancelled.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 
 const PaymentCancelled = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const isCalled = useRef(false); // Ref to track if the API has been called
 
   useEffect(() => {
     const handleCancellation = async () => {
+      if (isCalled.current) return; // Prevent duplicate calls
+      isCalled.current = true;
+
       const paymentId = searchParams.get('paymentId'); // Extract the payment ID from query params
 
       if (!paymentId) {
@@ -24,25 +28,28 @@ const PaymentCancelled = () => {
         );
         if (!response.data.success) {
           toast.info(response.data.message || 'Payment cancelled.');
+          navigate('/myappointments');
         } else {
           toast.error('Unexpected success response for a cancellation.');
+          navigate('/myappointments');
         }
       } catch (error) {
         console.error('Error handling PayPal cancellation:', error);
         toast.error('Failed to handle payment cancellation.');
+        navigate('/myappointments');
       }
     };
 
     handleCancellation();
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   return (
-    <div className="payment-cancelled">
-      <div style={{ textAlign: 'center', padding: '20px' }}>
-        <AiOutlineCloseCircle size={80} color="red" />
-        <h1>Payment Cancelled</h1>
-        <p>Your payment was cancelled or could not be completed.</p>
-      </div>
+    <div className="flex flex-col items-center justify-center p-8 bg-red-100 min-h-screen rounded-lg shadow-lg">
+      <AiOutlineCloseCircle size={80} className="text-red-500 mb-4" />
+      <h1 className="text-3xl font-semibold text-red-700">Payment Cancelled</h1>
+      <p className="text-lg text-gray-600">
+        Your payment was cancelled or could not be completed.
+      </p>
     </div>
   );
 };

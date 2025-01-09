@@ -43,9 +43,9 @@ const Feedbacks = () => {
                 >
                   <div className="justify-between items-center mb-2">
                     <span className="text-xs text-cream">{new Date(feedback.createdAt).toLocaleString()}</span>
-                    <h3 className="text-lg font-semibold">{feedback.name}</h3>
+                    <h3 className="text-lg font-semibold">{feedback.message}</h3>
                   </div>
-                  <div className="text-cream text-sm">{feedback.message}</div>
+                  <div className="text-cream text-sm">From: {feedback.name} {feedback.email}</div>
                 </div>
               ))
             )}

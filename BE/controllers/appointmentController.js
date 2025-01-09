@@ -3,6 +3,7 @@ const AWS = require('../config/awsConfig');
 const User = require('../models/User'); // Import the User model
 const Appointment = require('../models/Appointment')
 const Notification = require('../models/Notification')
+const { format } = require('date-fns');
 
 const ses = new AWS.SES();
 
@@ -59,14 +60,17 @@ exports.book = async (req, res) => {
       });
   
       // Prepare notification message
-      const message = `Hello ${user.username}, your appointment is scheduled for ${appointment_date}.`;
+      const formattedDate = format(new Date(appointment_date), 'EEEE, MMMM do yyyy, h:mm a');
+
+      // Prepare notification message
+      const message = `Hello ${user.username}, your appointment is scheduled for ${formattedDate}.`;
   
       // Send notification to user
       await sendEmail(user.email, 'Appointment Scheduled', message);
   
       // Prepare message for the barber shop owner
       const barberShopOwnerEmail = process.env.BARBER_SHOP_OWNER_EMAIL; // Ensure you set this in .env file
-      const ownerMessage = `New appointment booked: ${user.username} has scheduled an appointment for ${appointment_date}.`;
+      const ownerMessage = `New appointment booked: ${user.username} has scheduled an appointment for ${formattedDate}.`;
   
       // Send notification to the barber shop owner
       await sendEmail(barberShopOwnerEmail, 'New Appointment Booking', ownerMessage);
@@ -74,7 +78,7 @@ exports.book = async (req, res) => {
       // Save the notifications in the database (Notification model)
       await Notification.create({
         user_id: user.id,
-        message,
+        message:ownerMessage,
         status: 'sent',
       });
   
@@ -147,21 +151,21 @@ exports.book = async (req, res) => {
       await appointment.save();
   
       // Send email to the customer
-      const customerMessage = `Hello ${appointment.User.username}, your appointment scheduled for ${appointment.appointment_date} has been confirmed.`;
+      const formattedDate = format(new Date(appointment.appointment_date), 'EEEE, MMMM do yyyy, h:mm a');
+
+      const customerMessage = `Hello ${appointment.User.username}, your appointment scheduled for ${formattedDate} has been confirmed.`;
       await sendEmail(appointment.User.email, 'Appointment Confirmed', customerMessage);
-  
-      // Create notification for the customer
-      await Notification.create({
-        user_id: appointment.user_id,
-        message: customerMessage,
-        status: 'sent',
-      });
+      
   
       // Send email to the barber shop owner
-      const ownerMessage = `Appointment confirmed: ${appointment.User.username} has an appointment scheduled for ${appointment.appointment_date}.`;
+      const ownerMessage = `Appointment confirmed: ${appointment.User.username} has an appointment scheduled for ${formattedDate}.`;
       const barberShopOwnerEmail = process.env.BARBER_SHOP_OWNER_EMAIL;
       await sendEmail(barberShopOwnerEmail, 'Appointment Confirmed', ownerMessage);
-  
+      await Notification.create({
+        user_id: appointment.user_id,
+        message: ownerMessage,
+        status: 'sent',
+      });
       res.status(200).json({ message: 'Appointment confirmed successfully and emails sent.' });
     } catch (error) {
       console.error('Error confirming appointment:', error);
@@ -193,21 +197,23 @@ exports.book = async (req, res) => {
       await appointment.save();
   
       // Send email to the customer
-      const customerMessage = `Hello ${appointment.User.username}, your appointment scheduled for ${appointment.appointment_date} has been cancelled.`;
+      const formattedDate = format(new Date(appointment.appointment_date), 'EEEE, MMMM do yyyy, h:mm a');
+
+      const customerMessage = `Hello ${appointment.User.username}, your appointment scheduled for ${formattedDate} has been cancelled.`;
       await sendEmail(appointment.User.email, 'Appointment Cancelled', customerMessage);
   
       // Create notification for the customer
-      await Notification.create({
-        user_id: appointment.user_id,
-        message: customerMessage,
-        status: 'sent',
-      });
+      
   
       // Send email to the barber shop owner
-      const ownerMessage = `Appointment cancelled: ${appointment.User.username} had an appointment scheduled for ${appointment.appointment_date}, which has been cancelled.`;
+      const ownerMessage = `Appointment cancelled: ${appointment.User.username} had an appointment scheduled for ${formattedDate}, which has been cancelled.`;
       const barberShopOwnerEmail = process.env.BARBER_SHOP_OWNER_EMAIL;
       await sendEmail(barberShopOwnerEmail, 'Appointment Cancelled', ownerMessage);
-  
+      await Notification.create({
+        user_id: appointment.user_id,
+        message: ownerMessage,
+        status: 'sent',
+      });
       res.status(200).json({ message: 'Appointment cancelled successfully and emails sent.' });
     } catch (error) {
       console.error('Error rejecting appointment:', error);

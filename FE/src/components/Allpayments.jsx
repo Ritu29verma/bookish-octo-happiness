@@ -9,12 +9,11 @@ const AllPayments = () => {
 
   useEffect(() => {
     const fetchPayments = async () => {
-
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/pay/get-all-payments`,
         );
-        setPayments(response.data.payments);
+        setPayments(response.data.payments || []);
         console.log(response.data.payments);
       } catch (err) {
         console.error('Error fetching payments:', err);
@@ -37,27 +36,31 @@ const AllPayments = () => {
 
   return (
     <>
-      <div className="bg-cream min-h-screen py-2 ">
+      <div className="bg-cream min-h-screen py-2">
         <div className="max-w-4xl mx-auto">
-
           <div className="bg-white shadow-md rounded-lg p-4">
-
-            <ul className="space-y-4">
-              {payments.map((payment) => (
-                <li key={payment.id} className="bg-cream p-2 rounded-lg shadow-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-brown">
-                      Payment from {payment.User?.username} ({payment.User?.email}) for Appointment ID: {payment.appointment_id} on{' '}
-                      {new Date(payment.Appointment?.appointment_date).toLocaleString('en-US')}
-                    </span>
-                    <span className="text-brown">₹{payment.amount}</span>
-                  </div>
-                  <div className="text-gray-500 text-sm">
-                    Status: {payment.payment_status} | Method: {payment.payment_method || 'N/A'}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {payments.length === 0 ? (
+              <div className="text-center text-gray-500">
+                <p>No payments found at this time.</p>
+              </div>
+            ) : (
+              <ul className="space-y-4">
+                {payments.map((payment) => (
+                  <li key={payment.id} className="bg-cream p-2 rounded-lg shadow-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-brown">
+                        Payment from {payment.User?.username} ({payment.User?.email}) for Appointment ID: {payment.appointment_id} on{' '}
+                        {new Date(payment.Appointment?.appointment_date).toLocaleString('en-US')}
+                      </span>
+                      <span className="text-brown">₹{payment.amount}</span>
+                    </div>
+                    <div className="text-gray-500 text-sm">
+                      Status: {payment.payment_status} | Method: {payment.payment_method || 'N/A'}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
