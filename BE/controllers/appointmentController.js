@@ -4,38 +4,66 @@ const User = require('../models/User'); // Import the User model
 const Appointment = require('../models/Appointment')
 const Notification = require('../models/Notification')
 const { format } = require('date-fns');
+const nodemailer = require('nodemailer');
 
-const ses = new AWS.SES();
-
-
-
+// const ses = new AWS.SES();
 
 const sendEmail = async (to, subject, body) => {
-    const params = {
-      Source: process.env.SES_SENDER_EMAIL,  // Your verified SES email
-      Destination: {
-        ToAddresses: [to], // Recipient's email
-      },
-      Message: {
-        Subject: {
-          Data: subject,
-        },
-        Body: {
-          Text: {
-            Data: body,
-          },
-        },
-      },
-    };
-  
-    try {
-      const data = await ses.sendEmail(params).promise();
-      return data; // Return data on success
-    } catch (error) {
-      console.error("Error sending email:", error);
-      throw new Error("Failed to send email");
-    }
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,  
+    secure: true, 
+    auth: {
+      user: process.env.GMAIL_USER, 
+      pass: process.env.GMAIL_PASS, 
+    },
+  });
+
+  let mailOptions = {
+    from: process.env.GMAIL_USER, // Sender address
+    to: to, // Recipient's email
+    subject: subject, // Subject line
+    text: body, // Plain text body
   };
+
+  try {
+    let info = await transporter.sendMail(mailOptions);
+    console.log('Message sent: %s', info.messageId);
+    return info;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Failed to send email');
+  }
+};
+
+
+// const sendEmail = async (to, subject, body) => {
+//     const params = {
+//       Source: process.env.SES_SENDER_EMAIL,  // Your verified SES email
+//       Destination: {
+//         ToAddresses: [to], // Recipient's email
+//       },
+//       Message: {
+//         Subject: {
+//           Data: subject,
+//         },
+//         Body: {
+//           Text: {
+//             Data: body,
+//           },
+//         },
+//       },
+//     };
+  
+//     try {
+//       const data = await ses.sendEmail(params).promise();
+//       return data; // Return data on success
+//     } catch (error) {
+//       console.error("Error sending email:", error);
+//       throw new Error("Failed to send email");
+//     }
+//   };
   
 exports.book = async (req, res) => {
     const { username } = req.user;

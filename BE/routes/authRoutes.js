@@ -1,5 +1,5 @@
 const express = require('express');
-const { signup, confirm, signin , userInfo, google, callback,resendVerificationCode } = require('../controllers/authController');
+const { signup, confirm, signin , userInfo, google,resendVerificationCode ,callback,login} = require('../controllers/authController');
 const { authenticate } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -253,6 +253,7 @@ router.post('/callback',callback);
 router.post('/signup', signup);
 router.post('/confirm', confirm);
 router.post('/signin', signin);
+router.get('/login',login)
 
 
 module.exports = router;

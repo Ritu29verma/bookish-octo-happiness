@@ -4,7 +4,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Verify from "./pages/Verify";
 import HomePage from "./pages/HomePage";
-import GoogleCallback from "./pages/googleCallback";
+import Callback from "./pages/googleCallback";
 import AdminAppointmentsPage from "./pages/Admin";
 import PrivateRoute from "./components/PrivateRoute";
 import AboutUs from "./pages/AboutUs";
@@ -16,6 +16,7 @@ import StripePaymentCancelled from "./pages/stripeCancel";
 import PaymentCancelled from "./pages/paypalCancel";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
 const App = () => (
  
   <Router>
@@ -28,7 +29,7 @@ const App = () => (
       <Route path="/myappointments" element={ <MyAppointments />  }  />
       <Route path="/mypayments" element={ <MyPayments /> }  />
       <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} /> 
-      <Route path="/callback" element={<GoogleCallback/>} />
+      <Route path="/callback" element={<Callback/>} />
       <Route path="/admin" element={<PrivateRoute > <AdminAppointmentsPage/> </PrivateRoute> }/>
       <Route path="/paypal/success" element={<PaymentSuccess/>}/>
       <Route path="/paypal/cancel" element={<PaymentCancelled/>}/>

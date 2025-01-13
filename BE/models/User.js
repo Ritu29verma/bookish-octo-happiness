@@ -27,10 +27,6 @@ User.init(
       },
       validate: { isEmail: true },
     },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     role: {
       type: DataTypes.ENUM('admin', 'customer'),
       defaultValue: 'customer',

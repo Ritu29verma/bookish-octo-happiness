@@ -40,7 +40,7 @@ const PrivateRoute = ({ children }) => {
         }
       } catch (error) {
         console.error("Error fetching user info:", error);
-        navigate("/signin"); // Redirect to login on error
+        navigate("/"); // Redirect to login on error
       } finally {
         setLoading(false);
       }

@@ -41,7 +41,7 @@ const AdminAppointmentsPage = () => {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken"); // Clear token
     setUserInfo(null); // Reset user info
-    navigate("/signin");
+    navigate("/");
   };
 
   return (

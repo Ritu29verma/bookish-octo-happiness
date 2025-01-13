@@ -52,7 +52,7 @@ const Header = () => {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken"); // Clear token
     setUserInfo(null); // Reset user info
-    navigate("/signin");
+    navigate("/");
   };
 
   const isAuthenticated = sessionStorage.getItem("accessToken");
@@ -92,9 +92,21 @@ const Header = () => {
               ):
               (
                 <>
-                  <span className="hidden sm:block text-md font-medium">
-                    Welcome, {userInfo.username}!
-                  </span>
+          <div className="relative group text-md font-medium">
+            
+            {userInfo?.username?.startsWith("google_") ? (
+              <span className="cursor-pointer relative">
+              Welcome,{" "}Google User
+                <span className="absolute top-full left-1/2 transform -translate-x-1/2 translate-y-2 bg-gray-800 text-white text-sm font-bold px-3 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  {userInfo.username}
+                  <span className="absolute w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-b-4 border-b-gray-800 top-[-4px] left-1/2 -translate-x-1/2"></span>
+                </span>
+              </span>
+            ) : (
+             <span>Welcome,{" "}{userInfo?.username}</span> 
+            )}!
+          </div>
+
                 </>
               )}
               <div className="flex items-center space-x-2">
@@ -120,19 +132,21 @@ const Header = () => {
             </div>
           ) : (
             <div className="flex space-x-3">
-              <button
+              {/* <button
                 className="bg-brown text-cream py-2 px-2 md:py-2 md:px-4 rounded-lg"
                 onClick={() => navigate("/signup")}
               >
                 Sign Up
-              </button>
+              </button> */}
 
               <button
-                className="bg-brown text-cream py-2 px-2 md:py-2 md:px-4 rounded-lg"
-                onClick={() => navigate("/signin")}
-              >
-                Sign In
-              </button>
+            className="bg-brown text-cream py-2 px-2 md:py-2 md:px-4 rounded-lg"
+            onClick={() => {
+              window.location.href = `${import.meta.env.VITE_BASE_URL}/api/auth/login`;
+            }}
+          >
+            SignIn / SignUp
+          </button>
             </div>
           )}
 
@@ -163,9 +177,21 @@ const Header = () => {
           <nav className="flex flex-col items-start space-y-6 mt-4 ml-6">
           {isAuthenticated && (
               <>
-                <span className="text-md font-medium">
-                  Welcome, {userInfo?.username}!
+          <div className="relative group text-md font-medium">
+            Welcome,{" "}
+            {userInfo?.username?.startsWith("google_") ? (
+              <span className="cursor-pointer relative">
+                Google User
+                <span className="absolute top-full left-1/2 transform -translate-x-1/2 translate-y-2 bg-gray-800 text-white text-sm font-bold px-3 py-1 rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  {userInfo.username}
+                  <span className="absolute w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-b-4 border-b-gray-800 top-[-4px] left-1/2 -translate-x-1/2"></span>
                 </span>
+              </span>
+            ) : (
+              userInfo?.username
+            )}!
+          </div>
+
                 <a
                   className=" text-white  "
                   onClick={() => navigate('/myappointments')}
