@@ -26,7 +26,7 @@ const Verify = () => {
         confirmationCode: verificationCode,
       });
       toast.success("Verification Successful! Please log in.");
-      navigate("/signin"); 
+      window.location.href = `${import.meta.env.VITE_BASE_URL}/api/auth/login`;
       console.log(response.data);
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Verification Failed";

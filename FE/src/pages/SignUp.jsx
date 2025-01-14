@@ -162,9 +162,15 @@ const SignUp = () => {
             {loading ? "Loading..." : "Sign Up"}
           </button>
         </form>
-        <p className="text-sm text-center mt-4">
-          Already have an account? <a href="/signin" className="text-coffee font-semibold">Sign In</a>
-        </p>
+              <p className="text-sm text-center mt-4">
+                Already have an account?
+        <span
+          onClick={() => window.location.href = `${import.meta.env.VITE_BASE_URL}/api/auth/login`}
+          className="text-coffee font-semibold cursor-pointer"
+        >
+          Sign In
+        </span>
+      </p>
       </div>
     </div>
   );
