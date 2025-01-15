@@ -32,7 +32,7 @@ exports.initPayment = async (req, res) => {
         }
 
         // Default payment amount
-        const amount = 50; // Default amount
+        const amount = 1; // Default amount
 
         // Check if a payment already exists for the appointment
         let payment = await Payment.findOne({ where: { appointment_id } });
@@ -244,7 +244,7 @@ exports.allPayments = async (req, res) => {
         payment = await Payment.create({
           user_id: userId,
           appointment_id,
-          amount: 50.0,
+          amount: 1.0,
           payment_status: 'pending',
         });
   
@@ -263,7 +263,7 @@ exports.allPayments = async (req, res) => {
             reference_id: payment.id.toString(),
             amount: {
               currency_code: 'GBP',
-              value: '50.00',
+              value: '1.00',
             },
           },
         ],
@@ -385,7 +385,7 @@ exports.initStripe = async (req, res) => {
         payment = await Payment.create({
           user_id: userId,
           appointment_id,
-          amount: 50.0,
+          amount: 1.0,
           payment_status: 'pending',
         });
       }
@@ -399,7 +399,7 @@ exports.initStripe = async (req, res) => {
               product_data: {
                 name: `Appointment #${appointment_id}`,
               },
-              unit_amount: 5000, // Amount in pence (500 GBP)
+              unit_amount: 10, // Amount in pence (1 GBP)
             },
             quantity: 1,
           },
