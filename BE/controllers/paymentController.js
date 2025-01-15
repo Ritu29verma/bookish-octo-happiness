@@ -399,7 +399,7 @@ exports.initStripe = async (req, res) => {
               product_data: {
                 name: `Appointment #${appointment_id}`,
               },
-              unit_amount: 10, // Amount in pence (1 GBP)
+              unit_amount: 100, // Amount in pence (0.5 GBP)
             },
             quantity: 1,
           },
